@@ -57,6 +57,7 @@
       zoom: 12,
       circle: false,
       circleRadius: 1,
+      searchInsteadAutocomplete: false,
     },
 
     initialize: function (apiKey, options) {
@@ -872,7 +873,7 @@
           }
 
           if (text !== this._lastValue) {
-            if (!this.options.autocomplete) {
+            if (!this.options.searchInsteadAutocomplete) {
               this.search(text);
             } else {
               this._lastValue = text;
