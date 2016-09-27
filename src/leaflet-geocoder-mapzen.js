@@ -53,7 +53,10 @@
       markers: true,
       expanded: false,
       autocomplete: true,
-      place: false
+      place: false,
+      zoom: 12,
+      circle: false,
+      circleRadius: 1,
     },
 
     initialize: function (apiKey, options) {
@@ -521,11 +524,10 @@
     setSelectedResult: function (selected, originalEvent) {
       var latlng = L.GeoJSON.coordsToLatLng(selected.feature.geometry.coordinates);
       this._input.value = selected.innerText || selected.textContent;
+      this.removeMarkers();
       if (selected.feature.bbox) {
-        this.removeMarkers();
         this.fitBoundingBox(selected.feature.bbox);
       } else {
-        this.removeMarkers();
         this.showMarker(selected.innerHTML, latlng);
       }
       this.fire('select', {
@@ -537,6 +539,24 @@
 
       if (this.options.place) {
         this.place(selected.feature.properties.gid);
+      }
+
+      this._map.setZoom(this.options.zoom);
+
+      if (this.options.circle) {
+        var circle = L.circle(
+          latlng,
+          1609 * parseInt(this.options.circleRadius),
+          {
+            color: '#136AEC',
+            fillColor: '#136AEC',
+            fillOpacity: 0.15,
+            weight: 2,
+            opacity: 0.5
+        });
+
+        this.markers.push(circle);
+        this._map.addLayer(circle);
       }
     },
 
@@ -852,12 +872,15 @@
           }
 
           if (text !== this._lastValue) {
-            this._lastValue = text;
-
-            if (text.length >= MINIMUM_INPUT_LENGTH_FOR_AUTOCOMPLETE && this.options.autocomplete === true) {
-              this.autocomplete(text);
+            if (!this.options.autocomplete) {
+              this.search(text);
             } else {
-              this.clearResults(true);
+              this._lastValue = text;
+              if (text.length >= MINIMUM_INPUT_LENGTH_FOR_AUTOCOMPLETE && this.options.autocomplete === true) {
+                this.autocomplete(text);
+              } else {
+                this.clearResults(true);
+              }
             }
           }
         }, this)
