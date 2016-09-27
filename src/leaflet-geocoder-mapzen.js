@@ -873,7 +873,7 @@
           }
 
           if (text !== this._lastValue) {
-            if (!this.options.searchInsteadAutocomplete) {
+            if (this.options.searchInsteadAutocomplete) {
               this.search(text);
             } else {
               this._lastValue = text;
